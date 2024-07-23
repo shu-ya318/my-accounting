@@ -1,7 +1,8 @@
 import { initializeApp } from "firebase/app";
+import {getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut} from "firebase/auth";
 import {getFirestore, collection, getDocs} from 'firebase/firestore';
 import {getStorage} from 'firebase/storage';
-import {getAuth} from "firebase/auth";
+
 
 
 const firebaseConfig = {
@@ -15,16 +16,23 @@ const firebaseConfig = {
   };
 
 const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
-const auth = getAuth(app);
+
 
 export default auth;
 
 export {
+  //實例
+  app,
+  auth,
   db,
   storage,
-  auth,
+  //載入
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
   collection,
   getDocs
 };

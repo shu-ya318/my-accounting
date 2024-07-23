@@ -1,5 +1,5 @@
-"use client";
-import React, { useState } from 'react';
+'use client';
+import { useState } from 'react';
 //操作 資料庫
 
 interface Record {
