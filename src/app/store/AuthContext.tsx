@@ -8,16 +8,18 @@ export interface User {
 
 export  interface AuthContextType {
   user: User | null;
-  loading: boolean;
-  register: (email: string, password: string) => Promise<void>; 
-  signIn: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string) => Promise<User | null>; 
+  signIn: (email: string, password: string) => Promise<User | null>;
   logout: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType>({
   user: null,
-  loading: true,
-  register: async (email: string, password: string) => {},
-  signIn: async (email: string, password: string) => {},
+  register: async (email: string, password: string) => {
+    return null;
+  },
+  signIn: async (email: string, password: string) => { 
+    return null;
+  },
   logout: async () => {}
 });
