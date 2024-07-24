@@ -1,48 +1,41 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';          //棄用from 'next/router';
-import { AuthProvider } from './store/AuthProvider';  //已含AuthContext
-import useAuth from './hooks/useAuth';
+import { useRouter } from 'next/navigation';    //棄用from 'next/router';
+import { useAuth, AuthContextProvider } from './store/AuthContext';         
 
 
 const Page: React.FC = () => {
   const router = useRouter();
-  const { user, register, signIn, logout } = useAuth();
   const [registerMessage, setRegisterMessage] = useState<string | null>(null);
 
    
-  useEffect(() => {
+  /*useEffect(() => {
     if (user) {
       console.log('登入成功，目前用戶:', user);
     }else{
       console.log('找不到');
     }
-  }, [user]); 
+  }, [user]); */
 
-  const handleRegister = async (event: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
-    event.preventDefault();
-    const emailInput = document.getElementById('email-register') as HTMLInputElement;
-    const passwordInput = document.getElementById('password-register') as HTMLInputElement;
-    if (!emailInput.value ||  !passwordInput.value) {
-      setRegisterMessage('欄位不可空白!');
-      return;      
-    }
-    try {
-      const user  = await register(emailInput.value, passwordInput.value);
-      if (user) {
-        console.log("註冊成功，用戶資訊:", user);
-        setRegisterMessage('註冊成功!請登入以使用記帳功能');
-      } else {
-        setRegisterMessage('註冊失敗，請重新嘗試');
+  const register =() => {
+    const { user, signup } = useAuth()
+    console.log(user)
+    const [data, setData] = useState({
+      email: '',
+      password: '',
+    })
+  
+    const handleRegister = async (e: any) => {
+      e.preventDefault()
+  
+      try {
+        await signup(data.email, data.password)
+      } catch (err) {
+        console.log(err)
       }
-      emailInput.value= "";
-      passwordInput.value= "";
-    } catch (error) {
-      console.error('註冊失敗:', error);
-      setRegisterMessage('註冊失敗，請重新嘗試');
+  
+      console.log(data)
     }
-  };
-
   const handleSignIn = async (event: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
     event.preventDefault();
     const emailInput = document.getElementById('email-signin') as HTMLInputElement;
@@ -76,7 +69,7 @@ const Page: React.FC = () => {
 
 
   return (          //外層容器:已有Provider,省Fragment
-    <AuthProvider> 
+    <AuthContextProvider> 
         <div className="text-white  text-3xl mb-5 bg-black p-4 w-full text-center pt-10">
           React 練習專案 
         </div>
@@ -128,7 +121,7 @@ const Page: React.FC = () => {
             </form>
           </div>
       </div>
-    </AuthProvider>
+    </AuthContextProvider>
   )
 }
 
