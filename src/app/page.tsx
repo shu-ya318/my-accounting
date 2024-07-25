@@ -1,55 +1,41 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';    //棄用from 'next/router';
-import { useAuth, AuthContextProvider } from './store/AuthContext';         
+import { useAuth } from './store/AuthContext';         
 
 
-const Page: React.FC = () => {
+const HomePage: React.FC = (): React.ReactElement | null  => {
   const router = useRouter();
-  const [registerMessage, setRegisterMessage] = useState<string | null>(null);
+  const { user, register, signin, logout } = useAuth();
+  const [reminderMessage, setReminderMessage] = useState<string | null>(null);
 
-   
-  /*useEffect(() => {
-    if (user) {
-      console.log('登入成功，目前用戶:', user);
+
+  const handleRegister = async (e: any) => {
+    e.preventDefault();
+    const emailInput = document.getElementById('email-register') as HTMLInputElement;
+    const passwordInput = document.getElementById('password-register') as HTMLInputElement;
+    if (!emailInput.value ||  !passwordInput.value) {
+      setReminderMessage('欄位不可空白!'); 
     }else{
-      console.log('找不到');
+      setReminderMessage(''); 
+      await register(emailInput.value, passwordInput.value);
+      setReminderMessage('已自動登入，可點擊立即開始記帳功能');  //firebae auth 規則: 註冊成功，自動登入
+      emailInput.value= "";
+      passwordInput.value= "";
     }
-  }, [user]); */
+  };
 
-  const register =() => {
-    const { user, signup } = useAuth()
-    console.log(user)
-    const [data, setData] = useState({
-      email: '',
-      password: '',
-    })
-  
-    const handleRegister = async (e: any) => {
-      e.preventDefault()
-  
-      try {
-        await signup(data.email, data.password)
-      } catch (err) {
-        console.log(err)
-      }
-  
-      console.log(data)
-    }
-  const handleSignIn = async (event: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
-    event.preventDefault();
+  const handleSignIn = async (e: any) => {
+    e.preventDefault();
     const emailInput = document.getElementById('email-signin') as HTMLInputElement;
     const passwordInput = document.getElementById('password-signin') as HTMLInputElement;
-    if (emailInput && passwordInput) {
-      try {
-        const response = await signIn(emailInput.value, passwordInput.value);
-        console.log(response);
-        emailInput.value= "";
-        passwordInput.value= "";
-        console.log("登入成功"); 
-      } catch (error) {
-        console.error('登入失敗:', error);
-      }
+    try {
+      setReminderMessage(''); 
+      await signin(emailInput.value, passwordInput.value);
+      emailInput.value= "";
+      passwordInput.value= "";
+    } catch (err) {
+      console.log(err);
     }
   };
 
@@ -57,49 +43,54 @@ const Page: React.FC = () => {
     router.push('/accounting');
   };
 
-  const handleLogout = async (): Promise<void> => {
+  const handleLogout = async (e: any) => {
+    e.preventDefault();
     try {
-      const response = await logout();
-      console.log(response);
-      console.log('登出成功');
+      setReminderMessage(''); 
+      await logout();
     } catch (error) {
-      console.error('登出失敗:', error);
+      console.error(error);
     }
   };
 
 
-  return (          //外層容器:已有Provider,省Fragment
-    <AuthContextProvider> 
+  return (       
+    <>
         <div className="text-white  text-3xl mb-5 bg-black p-4 w-full text-center pt-10">
           React 練習專案 
         </div>
         <div className="flex flex-col items-center min-h-screen bg-white">
           <div className="mb-10">
-            <h2 className="text-center text-2xl mb-5 font-bold text-black mt-10">登入系統</h2>
             <form>
-              <div>
-                <label htmlFor="email-signin" className="text-black pr-2">電郵</label>
-                <input type="text"  id="email-signin" className="p-1 mb-2 border rounded text-black"/>
-              </div>
-              <div>
-                <label htmlFor="password-signin" className="text-black pr-2">密碼</label>
-                <input type="password" id="password-signin" className="p-1 mb-2 border rounded text-black"/>
-              </div>
               {!user ? (
-                <div className="flex justify-center">
-                  <button type="button" onClick={handleSignIn} className="bg-gray-100 border border-gray-400 text-black px-2 py-1">
-                    登入
-                  </button>
-                </div>
+                 <>
+                  <h2 className="text-center text-2xl mb-5 font-bold text-black mt-10">登入系統</h2>
+                  <div>
+                    <label htmlFor="email-signin" className="text-black pr-2">電郵</label>
+                    <input type="text"  id="email-signin" className="p-1 mb-2 border rounded text-black"/>
+                  </div>
+                  <div>
+                    <label htmlFor="password-signin" className="text-black pr-2">密碼</label>
+                    <input type="password" id="password-signin" className="p-1 mb-2 border rounded text-black"/>
+                  </div>
+                  <div className="flex justify-center">
+                    <button type="button" onClick={handleSignIn} className="bg-gray-100 border border-gray-400 text-black px-2 py-1">
+                      登入
+                    </button>
+                  </div>
+                </>
               ) : (
-                <div className="flex justify-center">
-                  <button type="button" onClick={handleStart} className="bg-gray-100 border border-gray-400 text-black px-2 py-1 mr-2">
-                    立即開始
-                  </button>
-                  <button type="button" onClick={handleLogout} className="bg-gray-100 border border-gray-400 text-black px-2 py-1">
-                    登出
-                  </button>
-                </div>
+                <>
+                  <div className="text-center my-4 text-black mt-7 text-lg">您已經使用{user.email}登入</div>
+                  <div className="flex justify-center">
+                    <button type="button" onClick={handleStart} className="bg-gray-100 border border-gray-400 text-black px-2 py-1 mr-2">
+                      立即開始
+                    </button>
+                    <button type="button" onClick={handleLogout} className="bg-gray-100 border border-gray-400 text-black px-2 py-1">
+                      登出
+                    </button>
+                  </div>
+                </>
               )}
             </form>
             <h2 className="text-center text-2xl mb-5 font-bold text-black mt-10">註冊帳戶</h2>
@@ -117,12 +108,12 @@ const Page: React.FC = () => {
                   註冊
                 </button>
               </div>
-              <div className="text-center  text-emerald-400  font-bold mt-5 ">{registerMessage}</div>
+              <div className="text-center  text-emerald-400  font-bold mt-5 ">{reminderMessage}</div>
             </form>
           </div>
       </div>
-    </AuthContextProvider>
+      </> 
   )
 }
 
-export default Page;
+export default HomePage;
