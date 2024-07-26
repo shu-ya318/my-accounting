@@ -37,17 +37,17 @@ const List: React.FC<ListProps>  = ({ accountingData, deleteAccountingRecord, us
   return (
     <div>
       {records.map(record => (
-        <div key={record.id} className="flex justify-between items-center my-2 p-2 shadow">
+        <div key={record.id} className="flex justify-between items-center my-2 p-2   max-w-screen-sm mx-auto">
           <span className={`${record.accountingType === '收入' ? 'text-green-500' : 'text-red-500'}`}>
             {record.accountingType === '收入' ? `+${record.amount}` : `-${record.amount}`}
           </span>
-          <span>{record.description}</span>
+          <span className="text-black">{record.description}</span>
           <button onClick={() => deleteRecord(record.id)} className="bg-gray-100 border border-gray-400 text-black px-2 py-1">
             刪除
           </button>
         </div>
       ))}
-      <div className="text-center font-bold my-4 text-black">小計: {balance}元</div>
+      <div className="text-center font-bold my-4 text-black my-14">小計: {balance}元</div>
     </div>
   );
 };
