@@ -25,43 +25,21 @@ const AccountingPage: React.FC = () => {
   const router = useRouter();
   const { user } = useAuth();
   const [accountingData, setAccountingData] = useState<AccountingInfo[]>([]);
-
-
-  //初始化欄位設定
-  async function initializeAccountingRecord(accountingInfo?: AccountingInfo) {
-    if (!accountingInfo) {
-      return;
-    }
-    try {
-      const docRef = await addDoc(collection(db, "accounting"), {
-        userId: accountingInfo.userId,
-        email: accountingInfo.email,
-        accountingType: accountingInfo.accountingType,
-        amount: accountingInfo.amount,
-        description: accountingInfo.description,
-        balance: accountingInfo.balance
-      });
-      console.log("Document written with ID: ", docRef.id);
-    } catch (e) {
-      console.error("Error adding document: ", e);
-    }
-  }
-  // initializeAccountingRecord();
+  const [initialized, setInitialized] = useState(false);
 
 
   //統一由父元件處理各功能使用的firestore、狀態管理  (非每次渲都呼叫) 
   const fetchAccountingData = useCallback(async () => {
-    if (!user) {
-      return;
-    }
+    if (!user) return;
     const q = query(collection(db, "accounting"), where("userId", "==", user.uid));
     const querySnapshot = await getDocs(q);
     const data = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data() as AccountingInfo
     }));
+
     setAccountingData(data);
-  }, [user]); 
+  }, [user]);
 
 
     //確保最新的會員資訊
@@ -72,6 +50,25 @@ const AccountingPage: React.FC = () => {
     }, [user, fetchAccountingData]);
 
 
+//僅首次，初始化欄位設定
+const initializeAccountingRecord = useCallback(async (accountingInfo?: AccountingInfo) => {
+  if (!accountingInfo) return;
+
+  const q = query(collection(db, "accounting"), where("userId", "==", accountingInfo.userId));
+  const querySnapshot = await getDocs(q);
+  if (querySnapshot.size === 0) {
+    try {
+      const docRef = await addDoc(collection(db, "accounting"), accountingInfo);
+      console.log("完成初始化設定: ", docRef.id);
+      fetchAccountingData();
+    } catch (e) {
+      console.error("初始化設定發生錯誤: ", e);
+    }
+  } else {
+    console.log("欄位已存在");
+  }
+}, [fetchAccountingData]);
+    
   const addAccountingRecord = async (record: AccountingInfo) => {
     await addDoc(collection(db, "accounting"), record);
     fetchAccountingData();
@@ -93,7 +90,7 @@ const AccountingPage: React.FC = () => {
             <Form
               accountingData={accountingData}
               addAccountingRecord={addAccountingRecord}
-              // initializeAccountingRecord={initializeAccountingRecord}
+              initializeAccountingRecord={initializeAccountingRecord}
               user={user}
             />
             <hr className="my-4" />

@@ -6,7 +6,7 @@ import { AccountingInfo} from  '../accounting/page';
 interface FormProps {
   accountingData: AccountingInfo[];
   addAccountingRecord: (record: AccountingInfo) => Promise<void>;
-  // initializeAccountingRecord: (info: AccountingInfo) => Promise<void>; 
+  initializeAccountingRecord: (info: AccountingInfo) => Promise<void>; 
   user: { uid: string; email: string | null };
 }
 
@@ -16,22 +16,25 @@ interface FormData {
   description: string;
 }
 
-const Form: React.FC<FormProps> = ({ addAccountingRecord, user }) => {
+const Form: React.FC<FormProps> = ({ addAccountingRecord, initializeAccountingRecord, user }) => {
   const [formData, setFormData] = useState<FormData>({ type: '收入', amount: 0, description: '' });
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+  
     if (!user.email) return;
 
-    await addAccountingRecord({
+    const newRecord = {
       userId: user.uid,
-      email: user.email, 
+      email: user.email,
       accountingType: formData.type,
       amount: formData.amount,
       description: formData.description,
       balance: 0
-    });
-
+    };
+    await initializeAccountingRecord(newRecord);
+    await addAccountingRecord(newRecord);
+  
     setFormData({ type: '收入', amount: 0, description: '' }); 
   };
 
