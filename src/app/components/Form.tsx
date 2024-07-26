@@ -32,9 +32,11 @@ const Form: React.FC<FormProps> = ({ addAccountingRecord, initializeAccountingRe
       description: formData.description,
       balance: 0
     };
-    await initializeAccountingRecord(newRecord);
     await addAccountingRecord(newRecord);
-  
+    if(!newRecord){
+      await initializeAccountingRecord(newRecord);
+    }
+    
     setFormData({ type: '收入', amount: 0, description: '' }); 
   };
 
@@ -46,7 +48,7 @@ const Form: React.FC<FormProps> = ({ addAccountingRecord, initializeAccountingRe
         <option value="收入">收入</option>
         <option value="支出">支出</option>
       </select>
-      <input type="number" value={formData.amount} onChange={(e) => setFormData({ ...formData, amount: parseInt(e.target.value, 10) || 0 })}
+      <input type="text" value={formData.amount} onChange={(e) => setFormData({ ...formData, amount: parseInt(e.target.value, 10) || 0 })}
         className="p-2 border mr-2 text-black"/>
       <input type="text" value={formData.description} placeholder="說明" onChange={(e) => setFormData({ ...formData, description: e.target.value })}
         className="p-2 border mr-2 text-black"/>
