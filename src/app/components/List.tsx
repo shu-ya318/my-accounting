@@ -4,9 +4,9 @@ import { AccountingInfo } from  '../accounting/page';
 
 
 interface ListProps {
+  user: { uid: string; email: string | null };
   accountingData: AccountingInfo[];
   deleteAccountingRecord: (id: string) => Promise<void>;
-  user: { uid: string; email: string | null };
 }
 
 
@@ -30,7 +30,7 @@ const List: React.FC<ListProps>  = ({ accountingData, deleteAccountingRecord, us
     if (id) {
       await deleteAccountingRecord(id);
     } else {
-      console.error("Error: id is undefined");
+      console.error("找不到此筆紀錄ID");
     }
   };
 

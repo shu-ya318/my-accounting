@@ -11,7 +11,7 @@ import { collection, doc, addDoc, getDocs, deleteDoc, query, where } from 'fireb
 
 
 export interface AccountingInfo{
-  id?: string;
+  id?: string;           //僅刪除會用到 該筆紀錄ID
   userId: string;
   email: string;
   accountingType: string;
@@ -25,13 +25,11 @@ const AccountingPage: React.FC = () => {
   const router = useRouter();
   const { user } = useAuth();
   const [accountingData, setAccountingData] = useState<AccountingInfo[]>([]);
-  const [initialized, setInitialized] = useState(false);
 
 
-  //統一由父元件處理各功能使用的firestore、狀態管理  (非每次渲都呼叫) 
   const fetchAccountingData = useCallback(async () => {
-    if (!user) return;
-    const q = query(collection(db, "accounting"), where("userId", "==", user.uid));
+    if (!user) return;   
+    const q = query(collection(db, 'accounting'), where('userId', '==', user.uid));
     const querySnapshot = await getDocs(q);
     const data = querySnapshot.docs.map(doc => ({
       id: doc.id,
@@ -41,43 +39,43 @@ const AccountingPage: React.FC = () => {
     setAccountingData(data);
   }, [user]);
 
+//確保渲染即時會員資訊
+useEffect(() => {
+  if (user) {
+    fetchAccountingData();
+  }
+}, [user, fetchAccountingData]);
 
-    //確保最新的會員資訊
-    useEffect(() => {
-      if (user) {
-        fetchAccountingData();
-      }
-    }, [user, fetchAccountingData]);
 
-
-//僅首次，初始化欄位設定
+//初始化新增
 const initializeAccountingRecord = useCallback(async (accountingInfo?: AccountingInfo) => {
   if (!accountingInfo) return;
 
-  const q = query(collection(db, "accounting"), where("userId", "==", accountingInfo.userId));
+  const q = query(collection(db, 'accounting'), where('userId', '==', accountingInfo.userId));
   const querySnapshot = await getDocs(q);
   if (querySnapshot.size === 0) {
     try {
-      const docRef = await addDoc(collection(db, "accounting"), accountingInfo);
-      console.log("完成初始化設定: ", docRef.id);
+      await addDoc(collection(db, 'accounting'), accountingInfo);
       fetchAccountingData();
+      console.log('完成初始化紀錄');
     } catch (e) {
-      console.error("初始化設定發生錯誤: ", e);
+      console.error('初始化紀錄發生錯誤: ', e);
     }
   } else {
-    console.log("欄位已存在");
+    console.log('已存在記帳紀錄');
   }
 }, [fetchAccountingData]);
-    
+//已有紀錄，後續新增
   const addAccountingRecord = async (record: AccountingInfo) => {
-    await addDoc(collection(db, "accounting"), record);
+    await addDoc(collection(db, 'accounting'), record);
     fetchAccountingData();
   };
 
   const deleteAccountingRecord = async (id: string) => {
-    await deleteDoc(doc(db, "accounting", id));
+    await deleteDoc(doc(db, 'accounting', id));
     fetchAccountingData();
   };
+
 
   return (
     <> 

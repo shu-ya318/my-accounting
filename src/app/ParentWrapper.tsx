@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import {AuthContextProvider } from './store/AuthContext'; 
 
 export default function ParentProvider({

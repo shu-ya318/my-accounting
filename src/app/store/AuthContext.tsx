@@ -1,15 +1,18 @@
-"use client";
-import { createContext, useContext, useEffect, useState } from 'react'
+'use client';
+import { createContext, useContext, useEffect, useState } from 'react';
 import {
+  User,
+  UserCredential,
   onAuthStateChanged,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
   AuthError
-} from 'firebase/auth'
-import { User, UserCredential } from 'firebase/auth';
-import { auth } from '../lib/firebaseConfig'
+} from 'firebase/auth';
+import { auth } from '../lib/firebaseConfig';
 
+
+//驗證 數據資料
 interface CustomUser {
   uid: string;
   email: string | null;
@@ -23,27 +26,30 @@ interface AuthContextType {
   logout: () => Promise<void>;
 }
 
+
 const AuthContext = createContext<AuthContextType>({
   user: null,
   register: async (email: string, password: string) => {
-    throw new Error("register function not implemented");
+    throw new Error('註冊函式未執行');
   },
   signin: async (email: string, password: string) => {
-    throw new Error("signin function not implemented");
+    throw new Error('登入函式未執行');
   },
   logout: async () => {
-    throw new Error("logout function not implemented");
+    throw new Error('登出函式未執行');
   },
 });
 
 
-export const useAuth = () => useContext(AuthContext)
+export const useAuth = () => useContext(AuthContext);
+
 
 export const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<CustomUser | null>(null);
   const [loading, setLoading] = useState(true);
 
 
+  //只在元件首次渲染時建立監聽器，直到監聽器被清除
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -53,21 +59,15 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
           displayName: user.displayName,
         })
       } else {
-        setUser(null)
+        setUser(null);
       }
-      setLoading(false)
-    })
-
-    // 避初次開啟頁面，onAuthStateChanged事件未觸發or未返回資料，致永遠加載中
-    const timeout = setTimeout(() => {
-      if (loading) setLoading(false);
-    }, 5000);
+      setLoading(false);
+    });
 
     return () => {
       unsubscribe();
-      clearTimeout(timeout);
     };
-  }, [loading])
+  }, []);  
 
   const register = async (email: string, password: string) => {
     try {

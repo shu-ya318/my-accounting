@@ -4,10 +4,9 @@ import { AccountingInfo} from  '../accounting/page';
 
 
 interface FormProps {
-  accountingData: AccountingInfo[];
+  user: { uid: string; email: string | null };
   addAccountingRecord: (record: AccountingInfo) => Promise<void>;
   initializeAccountingRecord: (info: AccountingInfo) => Promise<void>; 
-  user: { uid: string; email: string | null };
 }
 
 interface FormData {
@@ -19,9 +18,8 @@ interface FormData {
 const Form: React.FC<FormProps> = ({ addAccountingRecord, initializeAccountingRecord, user }) => {
   const [formData, setFormData] = useState<FormData>({ type: '收入', amount: 0, description: '' });
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-  
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     if (!user.email) return;
 
     const newRecord = {

@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, MouseEvent} from 'react';
 import { useRouter } from 'next/navigation';    //棄用from 'next/router';
 import { useAuth } from './store/AuthContext';         
 
@@ -10,7 +10,7 @@ const HomePage: React.FC = (): React.ReactElement | null  => {
   const [reminderMessage, setReminderMessage] = useState<string | null>(null);
 
 
-  const handleRegister = async (e: any) => {
+  const handleRegister = async (e:React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     const emailInput = document.getElementById('email-register') as HTMLInputElement;
     const passwordInput = document.getElementById('password-register') as HTMLInputElement;
@@ -25,7 +25,7 @@ const HomePage: React.FC = (): React.ReactElement | null  => {
     }
   };
 
-  const handleSignIn = async (e: any) => {
+  const handleSignIn = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     const emailInput = document.getElementById('email-signin') as HTMLInputElement;
     const passwordInput = document.getElementById('password-signin') as HTMLInputElement;
@@ -39,18 +39,17 @@ const HomePage: React.FC = (): React.ReactElement | null  => {
     }
   };
 
-  const handleStart = () => {
-    router.push('/accounting');
-  };
-
-  const handleLogout = async (e: any) => {
-    e.preventDefault();
+  const handleLogout = async () => {
     try {
       setReminderMessage(''); 
       await logout();
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const handleStart = () => {
+    router.push('/accounting');
   };
 
 
@@ -104,7 +103,7 @@ const HomePage: React.FC = (): React.ReactElement | null  => {
                 <input type="password"  id="password-register" className="p-1 mb-2 border rounded  text-black"/>
               </div>
               <div className="flex justify-center">
-                <button onClick={handleRegister} type="button" className="bg-gray-100  border border-gray-400 text-black px-2 py-1">
+                <button  type="button" onClick={handleRegister} className="bg-gray-100  border border-gray-400 text-black px-2 py-1">
                   註冊
                 </button>
               </div>
