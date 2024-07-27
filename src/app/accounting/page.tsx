@@ -86,7 +86,6 @@ const initializeAccountingRecord = useCallback(async (accountingInfo?: Accountin
           <div className="container mx-auto px-4">
             <h1 className="font-bold text-center my-4 text-black mt-7 text-lg">您已經使用{user.email}登入</h1>
             <Form
-              accountingData={accountingData}
               addAccountingRecord={addAccountingRecord}
               initializeAccountingRecord={initializeAccountingRecord}
               user={user}
