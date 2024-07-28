@@ -2,7 +2,7 @@
 import { useState, MouseEvent} from 'react';
 import { useRouter } from 'next/navigation';    //棄用from 'next/router';
 import { useAuth } from './store/AuthContext';         
-
+import { UserCredential,AuthError }from 'firebase/auth';
 
 const HomePage: React.FC = (): React.ReactElement | null  => {
   const router = useRouter();
@@ -16,26 +16,48 @@ const HomePage: React.FC = (): React.ReactElement | null  => {
     const passwordInput = document.getElementById('password-register') as HTMLInputElement;
     if (!emailInput.value ||  !passwordInput.value) {
       setReminderMessage('欄位不可空白!'); 
-    }else{
-      setReminderMessage(''); 
-      await register(emailInput.value, passwordInput.value);
-      setReminderMessage('已自動登入，可點擊立即開始記帳功能');  //firebae auth 規則: 註冊成功，自動登入
-      emailInput.value= "";
-      passwordInput.value= "";
+      return;
+    }
+
+    setReminderMessage(''); 
+
+    try {
+      const response = await register(emailInput.value, passwordInput.value);
+      setReminderMessage('已自動登入，可點擊立即開始記帳功能');
+      emailInput.value = '';
+      passwordInput.value = '';
+    } catch (error) {
+      const err = error as AuthError;
+      if (err.code === 'auth/email-already-in-use') {
+        setReminderMessage('email已被註冊,請登入或使用其他email註冊!');
+      } else if (err.code === 'auth/invalid-email') {
+        setReminderMessage('請輸入有效格式的email!');
+      } else if (err.code === 'auth/weak-password') {
+        setReminderMessage('密碼強度至少需要6個字元!');
+      } else {
+        setReminderMessage(`註冊發生未知錯誤: ${err.message}`);
+      }
     }
   };
+
 
   const handleSignIn = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     const emailInput = document.getElementById('email-signin') as HTMLInputElement;
     const passwordInput = document.getElementById('password-signin') as HTMLInputElement;
+    if (!emailInput.value ||  !passwordInput.value) {
+      setReminderMessage('欄位不可空白!'); 
+      return;
+    }
+
+    setReminderMessage(''); 
+
     try {
-      setReminderMessage(''); 
-      await signin(emailInput.value, passwordInput.value);
-      emailInput.value= "";
-      passwordInput.value= "";
+      const response = await signin(emailInput.value, passwordInput.value);
+      emailInput.value= '';
+      passwordInput.value= '';
     } catch (err) {
-      console.log(err);
+      setReminderMessage('請輸入正確信箱及密碼!若無會員請先註冊!'); 
     }
   };
 
